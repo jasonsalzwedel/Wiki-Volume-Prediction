@@ -1,0 +1,95 @@
+---
+title: "Wiki prediction"
+author: "Jason Salzwedel SLZJAS001"
+date: "21 August 2017"
+output: html_document
+---
+
+Load the data into R
+
+```{r }
+
+Dataset.Key <- read.csv(file="Data/key_1.csv", header=TRUE, sep=",")
+Dataset.Sample <- read.csv(file ="Data/sample_submission_1.csv", header=TRUE, sep=",")
+Dataset.Train <- read.csv(file ="Data/train_1.csv", header=TRUE, sep=",")
+
+head(Dataset.Key)
+head(Dataset.Sample)
+
+rm(Dataset.train)
+
+```
+
+
+
+melt the data frame on site
+
+```{r }
+library(reshape2)
+
+#try: check.names=FALSE when reading to get years without X prepended, or sub("^X","",variable) #to strip them off later; and as.numeric(variable) to convert back to a numeric value
+# my.result <- melt(my.df, id = c("Country"))
+# my.result[order(my.result$Country),]
+
+```
+
+Step four:
+Add columns for Day, Week, Month and Year. 
+Make the Day, Week and Month factors
+leave the year as int
+
+```{r }
+
+```
+
+
+Step five: 
+train a model.
+Can we use a tree or forest?
+Can we use a neural net?
+
+
+```{r }
+
+library(h2o)
+library(caret)
+
+## Initialise H2O Connection
+## Start a local H2O cluster directly from R
+localH2O = h2o.init(ip = "localhost", port = 54321, startH2O = TRUE,min_mem_size = "3g")
+
+
+
+Train.Data.h2o <- as.h2o(Train.set)
+Test.Data.h2o <- as.h2o(Test.set)
+
+Deeplearning.Mod1 <- h2o.deeplearning(x = c(3,4,5,6,7,8,10,11),
+                            y = 1, 
+                            training_frame = Train.Data.h2o, 
+                            validation_frame = Test.Data.h2o,
+                            activation = "Tanh", 
+                            #input_dropout_ratio = 0.2, 
+                            #hidden_dropout_ratios = c(0.5,0.5,0.5), 
+                            #balance_classes = TRUE, 
+                            hidden = c(10,10,10), # 
+                            l1 = 1e-5,
+                            nfolds = 5,
+                            epochs = 300,
+                            variable_importances = TRUE
+                            ) # max. no. of epochs
+
+h2o.performance(Deeplearning.Mod, train = TRUE)
+h2o.varimp(Deeplearning.Mod)
+
+predictionsTrain <- h2o.predict(Deeplearning.Mod1, Test.Data.h2o)
+
+```
+
+
+Step two:
+Add the codes to the web pages using Merge from the 
+
+```{r }
+# merge(cold.states, large.states)
+
+```
